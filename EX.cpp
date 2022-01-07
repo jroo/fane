@@ -9,73 +9,88 @@ EX::EX(byte i2caddr)
   _target = 1;
 }
 
-void EX::sendCommand(short addr, byte msg[], int msgLength)
+void EX::send1(byte b1)
 {
-  Wire.beginTransmission(addr);
-  Serial.print(millis());
-  Serial.println(" transmission started");
+  byte msg[] = {b1};
+  sendCommand(msg, 1);
+}
+
+void EX::send2(byte b1, byte b2)
+{
+  byte msg[] = {b1, b2};
+  sendCommand(msg, 2);
+}
+
+void EX::send4(byte b1, byte b2, byte b3, byte b4)
+{
+  byte msg[] = {b1, b2, b3, b4};
+  sendCommand(msg, 4);
+}
+
+void EX::sendCommand(byte msg[], int msgLength)
+{
+  Wire.beginTransmission(_i2caddr);
   for (short b = 0; b < msgLength; b++) {
     Wire.write(msg[b]);
   }
-  Serial.print("transmission ended with status of ");
-  Serial.println(Wire.endTransmission());
+  Wire.endTransmission();
   delay(100);
-  Serial.println();
 }
 
 byte EX::getState(byte loop) {
-  byte msg[] = {0x59, loop};
-  sendCommand(_i2caddr, msg, sizeof(msg));
+  send2(0x59, loop);
 
   Wire.requestFrom(_i2caddr, 1);
-  Serial.print("Loop ");
-  Serial.print(loop);
-  Serial.print(" current State: ");
   byte s;
   while (Wire.available()) { // peripheral may send less than requested
     s = Wire.read();
   }
-  Serial.println(s, DEC);
   return s;
 }
 
 void EX::toggleCommand(byte cmd) 
 {
-  byte msg1[] = {0x46, cmd, 0x00, 0x00};
-  byte msg2[] = {0x46, cmd, 0x00, 0x01};
-  sendCommand(_i2caddr, msg1, 4); // initialize at 0 to ensure toggle
-  sendCommand(_i2caddr, msg2, 4);
-  sendCommand(_i2caddr, msg1, 4); 
+  send4(0x46, cmd, 0x00, 0x00); // initialize at 0 to ensure toggle
+  send4(0x46, cmd, 0x00, 0x01);
+  send4(0x46, cmd, 0x00, 0x00);
+}
+
+void EX::setTarget(byte t)
+{
+  Serial.println("\nset target ");
+  send4(0x46, 0x07, 0x00, t);
+  _target = t;
+  Serial.println(_target);
 }
 
 void EX::clearTarget() 
 { 
   // clears target loop then sets new target
-  sendCommand(_i2caddr, {0x58}, 1);
+  Serial.print("\nclear target ");
+  Serial.println(_target);
+  send1(0x58);
   randomTarget(); 
 }
 
 void EX::randomTarget() {
-  Serial.println("random target");
-  byte loop = random(1,5);
-  _target = loop;
-  byte msg[] = {0x46, 0x07, 0x00, loop};
-  sendCommand(_i2caddr, msg, sizeof(msg));
+  // sets random loop target
+  setTarget(random(1,5));
 }
 
 void EX::toggleRecord() 
 { 
   // toggles between recording and not then sets new random target
-  Serial.println("record");
+  Serial.print("\nrecord ");
+  Serial.println(_target);
   toggleCommand(56);
   randomTarget(); 
 }
 
-
 void EX::togglePlay() 
 { 
   // toggles between play/pause then sets new random target
-  Serial.println("play/pause/mute");
+  Serial.print("\nplay/pause/mute ");
+  Serial.println(_target);
   toggleCommand(57);
   randomTarget(); 
 }
@@ -83,7 +98,8 @@ void EX::togglePlay()
 void EX::toggleReverse()
 {
   //toggles between reverse and forward playback then sets new random target
-  Serial.println("reverse");
+  Serial.print("\nreverse ");
+  Serial.println(_target);
   toggleCommand(58);
   randomTarget(); 
 }
@@ -91,7 +107,8 @@ void EX::toggleReverse()
 void EX::toggleOctave() 
 { 
   // toggles between octave down and normal octave then sets new random target
-  Serial.println("octave down");
+  Serial.print("\noctave down ");
+  Serial.println(_target);
   toggleCommand(62);
   randomTarget(); 
 }
