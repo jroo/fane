@@ -4,25 +4,27 @@
 // fané (faded)
 // firmwave for fanés i2c controller for Disting EX looper
 
+#define EX_I2C_ENABLED true
 #define EX_I2C_ADDRESS 65 // 0x31 hex
+#define EX_MIDI_ENABLED false
 #define EX_MIDI_CHANNEL 1
 
-EX ex(EX_I2C_ADDRESS);
+EX ex(EX_I2C_ENABLED, EX_I2C_ADDRESS, EX_MIDI_ENABLED, EX_MIDI_CHANNEL);
 
 bool gate = false;
 int clock = 0;
 
 void setup()
-{
-  randomSeed(analogRead(A0));
-  
+{  
   pinMode(13, OUTPUT);
   pinMode(14, INPUT_PULLUP);
   pinMode(15, INPUT_PULLUP);
 
-  Serial.begin(9600);
+  Serial.begin(115200);
+  randomSeed(analogRead(2));
   Wire.begin();
 
+  ex.printStatus();
   initializeLooper();
 }
 
