@@ -4,9 +4,10 @@
 // fané (faded)
 // firmwave for fanés i2c controller for Disting EX looper
 
-#define EX_ADDRESS 65 // 0x31 hex
+#define EX_I2C_ADDRESS 65 // 0x31 hex
+#define EX_MIDI_CHANNEL 1
 
-EX ex(EX_ADDRESS);
+EX ex(EX_I2C_ADDRESS);
 
 bool gate = false;
 int clock = 0;
@@ -52,30 +53,22 @@ void triggerEvent()
 
 void clearAll() 
 {
-  // clears all loops
-  for (byte i=1; i<5; i++) 
-  {
-    ex.setTarget(i);
-    ex.clearTarget();
-  }
+  // clears all loops by setting bitrate
+  ex.setBitDepth();
 }
 
 void initializeLooper()
 {    
-  // clear all loops
   clearAll();
-  
-  ex.send4(0x46, 8, 0, 1); // record gain 0
-  ex.send4(0x46, 17, highByte(-20), lowByte(-20)); // loop 1 pan -20
-  ex.send4(0x46, 18, highByte(-10), lowByte(-10)); // loop 2 pan -10
-  ex.send4(0x46, 19, 0, 10); // loop 3 pan 10
-  ex.send4(0x46, 20, 0, 20); // loop 4 pan 20
-  ex.send4(0x46, 21, highByte(-6), lowByte(-6)); // loop 1 gain -6
-  ex.send4(0x46, 22, highByte(-12), lowByte(-12)); // loop 2 gain -12
-  ex.send4(0x46, 23, highByte(-18), lowByte(-18)); // loop 3 gain -18
-  ex.send4(0x46, 24, highByte(-24), lowByte(-24)); // loop 4 gain -24
-  ex.send4(0x46, 49, highByte(-6), lowByte(-6)); // overdub fade -6
-
-  ex.randomTarget(); // set random target
-
+  ex.setRecordGain(0);
+  ex.setLoopPan(1, -20);
+  ex.setLoopPan(2, -10);
+  ex.setLoopPan(3, 10);
+  ex.setLoopPan(4, 20);
+  ex.setLoopGain(1, -6);
+  ex.setLoopGain(2, -12);
+  ex.setLoopGain(3, -18);
+  ex.setLoopGain(4, -24);
+  ex.setOverdubFade(-6);
+  ex.randomTarget();
 }

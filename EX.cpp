@@ -12,22 +12,22 @@ EX::EX(byte i2caddr)
 void EX::send1(byte b1)
 {
   byte msg[] = {b1};
-  sendCommand(msg, 1);
+  sendI2CCommand(msg, 1);
 }
 
 void EX::send2(byte b1, byte b2)
 {
   byte msg[] = {b1, b2};
-  sendCommand(msg, 2);
+  sendI2CCommand(msg, 2);
 }
 
 void EX::send4(byte b1, byte b2, byte b3, byte b4)
 {
   byte msg[] = {b1, b2, b3, b4};
-  sendCommand(msg, 4);
+  sendI2CCommand(msg, 4);
 }
 
-void EX::sendCommand(byte msg[], int msgLength)
+void EX::sendI2CCommand(byte msg[], int msgLength)
 {
   Wire.beginTransmission(_i2caddr);
   for (short b = 0; b < msgLength; b++) {
@@ -63,6 +63,13 @@ void EX::setTarget(byte t)
   Serial.println(_target);
 }
 
+void EX::setBitDepth()
+{
+  Serial.println("\nset bitrate/clear loops");
+  send4(0x46, 0x59, 0x00, 2);  //change to 32 bit
+  send4(0x46, 0x59, 0x00, 2);  //change back to 16 bit
+}
+
 void EX::clearTarget() 
 { 
   // clears target loop then sets new target
@@ -72,7 +79,28 @@ void EX::clearTarget()
   randomTarget(); 
 }
 
-void EX::randomTarget() {
+void EX::setRecordGain(short g)
+{
+  send4(0x46, 8, highByte(g), lowByte(g));
+}
+
+void EX::setLoopPan(byte loop, short p)
+{
+  send4(0x46, 16 + loop, highByte(p), lowByte(p)); 
+}
+
+void EX::setLoopGain(byte loop, short g)
+{
+  send4(0x46, 20 + loop, highByte(g), lowByte(g)); 
+}
+
+void EX::setOverdubFade(short f)
+{
+  send4(0x46, 49, highByte(f), lowByte(f));
+}
+
+void EX::randomTarget() 
+{
   // sets random loop target
   setTarget(random(1,5));
 }
