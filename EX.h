@@ -24,6 +24,8 @@ class EX
     void togglePlay();
     void toggleReverse();
     void toggleOctave();
+    long recStatus[4];
+    long recEnd[4];
   private:
     bool _i2cEnabled;
     byte _i2cAddr;

@@ -10,6 +10,11 @@ EX::EX(bool i2cEnabled, byte i2cAddr, bool midiEnabled, byte midiChannel)
   _midiEnabled = midiEnabled;
   _midiChannel = midiChannel;
   _target = 1;
+
+  for (int i=0; i<4; i++) {
+    recStatus[i] = false;
+    recEnd[i] = false;
+  }
 }
 
 void EX::send1(byte b1)
@@ -136,12 +141,15 @@ void EX::randomTarget()
 void EX::toggleRecord() 
 { 
   // toggles between recording and not then sets new random target
-  Serial.print("\nrecord ");
+  Serial.print("\ntoggle record ");
   Serial.println(_target);
   if (_i2cEnabled) toggleCommand(56);
   if (_midiEnabled) triggerNote(55);
+  byte i = _target - 1;
+  recStatus[i] = !recStatus[i];
+  Serial.println(recStatus[i]);
+  if (recStatus[i] == true) recEnd[i] = millis() + random(2000, 19000);
   randomTarget(); 
-
 }
 
 void EX::togglePlay() 
