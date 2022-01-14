@@ -105,7 +105,20 @@ void EX::clearTarget()
   Serial.print("\nclear target ");
   Serial.println(_target);
   if (_i2cEnabled) send1(0x58);
-  randomTarget(); 
+  if (_midiEnabled) {
+    byte sysex[9] = {0xF0, 0x00, 0x21, 0x27, 0x5D, 0x60, 0x06, 0x58, 0xF7};
+    usbMIDI.sendSysEx(9, sysex, true);
+  }
+}
+
+void EX::clearAll()
+{
+  // clears all loops
+  for (byte i=1; i<5; i++) {
+    setTarget(i);
+    delay(30);
+    clearTarget();
+  }
 }
 
 void EX::setRecordGain(short g)
@@ -149,7 +162,6 @@ void EX::toggleRecord()
   recStatus[i] = !recStatus[i];
   Serial.println(recStatus[i]);
   if (recStatus[i] == true) recEnd[i] = millis() + random(2000, 19000);
-  randomTarget(); 
 }
 
 void EX::togglePlay() 
@@ -159,7 +171,6 @@ void EX::togglePlay()
   Serial.println(_target);
   if (_i2cEnabled) toggleCommand(57);
   if (_midiEnabled) triggerNote(57);
-  randomTarget(); 
 }
 
 void EX::toggleReverse()
@@ -169,7 +180,6 @@ void EX::toggleReverse()
   Serial.println(_target);
   if (_i2cEnabled) toggleCommand(58);
   if (_midiEnabled) triggerNote(59);
-  randomTarget(); 
 }
 
 void EX::toggleOctave() 
@@ -179,7 +189,6 @@ void EX::toggleOctave()
   Serial.println(_target);
   if (_i2cEnabled) toggleCommand(62);
   if (_midiEnabled) triggerNote(60);
-  randomTarget(); 
 }
 
 void EX::triggerNote(byte note) 
@@ -205,7 +214,7 @@ void EX::printStatus()
 int EX::getCCVal(int low, int high, int cval) 
 {
   int span = abs(low - high) + 1;
-  Serial.print("span: ");
+  Serial.print("\nspan: ");
   Serial.println(span);
   float stepSize = (float)128/(float)span;
   Serial.print("step size: ");

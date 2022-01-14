@@ -12,7 +12,6 @@
 EX ex(EX_I2C_ENABLED, EX_I2C_ADDRESS, EX_MIDI_ENABLED, EX_MIDI_CHANNEL);
 
 bool gate = false;
-int clock = 0;
 int lt = 0; // last trigger time
 int bpm = 90;
 int m = (int)((60.0/(float)bpm)*1000);
@@ -33,10 +32,12 @@ void setup()
 
 void loop()
 {
+
+  Serial.println(analogRead(14));
+  
   digitalWrite(13, HIGH);
   digitalWrite(13, LOW);
 
-  /*
   // with this circuit gates are open when digitalRead is false 
   if (gate and (digitalRead(14) == HIGH)) {
     gate = false; // gate closed
@@ -45,9 +46,6 @@ void loop()
     gate = true; // gate opened
     triggerEvent();
   }
-  */
-
-  if (millis() - lt > m) triggerEvent();
 }
 
 void triggerEvent()
@@ -55,22 +53,35 @@ void triggerEvent()
   Serial.print('.');
   lt = millis();
   endRecordings();
-  clock = (clock + 1) % 16000;
-  if (random(300) == 42) ex.clearTarget();
-  if (random(100) == 24) ex.toggleReverse();
-  if (random(33) == 11) ex.toggleRecord();
-  if (random(500) == 19) ex.toggleOctave();
-}
-
-void clearAll() 
-{
-  // clears all loops by setting bit depth
-  ex.setBitDepth();
+  
+  if (random(300) == 42) 
+  {
+    ex.clearTarget();
+    ex.randomTarget();
+  }
+  
+  if (random(100) == 24)
+  {
+    ex.toggleReverse();
+    ex.randomTarget();
+  }
+  
+  if (random(33) == 11) 
+  {
+    ex.toggleRecord();
+    ex.randomTarget();
+  }
+  
+  if (random(500) == 19)
+  { 
+    ex.toggleOctave();
+    ex.randomTarget();
+  }
 }
 
 void initializeLooper()
 {    
-  clearAll();
+  ex.clearAll();
   ex.setRecordGain(0);
   ex.setLoopPan(1, -20);
   ex.setLoopPan(2, -10);

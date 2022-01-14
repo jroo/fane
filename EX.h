@@ -10,6 +10,7 @@ class EX
     EX(bool i2cEnabled, byte i2cAddr, bool midiEnabled, byte midiChannel);
     byte getState(byte loop);
     void clearTarget();
+    void clearAll();
     void printStatus();
     void setBitDepth();
     void setRecordGain(short g);
