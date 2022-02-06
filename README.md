@@ -6,3 +6,5 @@ algorithmically drives the Expert Sleepers Disting EX Looper algorithm. this cod
 based on fané: teletype
 
 each metronome beat is triggered by a pulse to cv input 1
+
+<img src="https://user-images.githubusercontent.com/49064/152688215-0600f014-c46b-493e-a281-7da67d464e4f.jpeg" width=500>
