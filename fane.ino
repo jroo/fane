@@ -5,7 +5,7 @@
 // firmwave for fanés i2c controller for Disting EX looper
 
 #define EX_I2C_ENABLED true
-#define EX_I2C_ADDRESS 65 // 0x31 hex
+#define EX_I2C_ADDRESS 65 // 0x41 hex
 #define EX_MIDI_ENABLED true
 #define EX_MIDI_CHANNEL 1
 
